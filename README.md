@@ -75,6 +75,11 @@ public function user2fa(): HasOne
 }
 ```
 
+Add `enabled_2fa` field to User model database table
+```php
+$table->boolean('enabled_2fa')->nullable()->default(false);
+```
+
 Add middleware to `config/nova.php`.
 ```php
 [
@@ -101,7 +106,7 @@ return [
          * Change this variable to path to user model.
          */
         'user' => 'App\User',
-        
+
         /**
          * Change this if you need a custom connector
          */
