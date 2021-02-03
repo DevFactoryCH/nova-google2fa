@@ -26,14 +26,28 @@ class Google2fa
         if (!config('383project2fa.enabled')) {
             return $next($request);
         }
+
+        # Special case to only enable for users with admin role, and who have 2FA enabled
+        if ($user = $request->user()) {
+            if (!$user->hasRole(['admin'])) {
+                return $next($request);
+            }
+
+            if ($user->hasRole(['admin']) && !$user->enabled_2fa) {
+                return $next($request);
+            }
+        }
+
         if ($request->path() === '2fa/confirm' || $request->path() === '2fa/authenticate'
             || $request->path() === '2fa/register') {
             return $next($request);
         }
+
         $authenticator = app(Google2FAAuthenticator::class)->boot($request);
         if (auth()->guest() || $authenticator->isAuthenticated()) {
             return $next($request);
         }
+
         if (empty(auth()->user()->user2fa) || auth()->user()->user2fa->google2fa_enable === 0) {
 
             $google2fa = new G2fa();
